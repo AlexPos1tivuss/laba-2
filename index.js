@@ -52,6 +52,58 @@ async function handleCommand(command, args) {
       }
       break;
 
+    case 'ls':
+      try {
+        const entries = await fs.readdir(currentDir, { withFileTypes: true });
+        const dirs = [];
+        const files = [];
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            dirs.push(entry.name);
+          } else if (entry.isFile()) {
+            files.push(entry.name);
+          }
+        }
+        dirs.sort();
+        files.sort();
+        console.log('Directories:');
+        dirs.forEach(dir => console.log(`  ${dir} (dir)`));
+        console.log('Files:');
+        files.forEach(file => console.log(`  ${file} (file)`));
+      } catch (error) {
+        console.error('Operation failed');
+      }
+      break;
+
+    case 'cat':
+      if (args.length !== 1) {
+        console.error('Invalid input');
+        return;
+      }
+      const filePath = path.resolve(currentDir, args[0]);
+      try {
+        const readStream = fs.createReadStream(filePath);
+        await pipeline(readStream, process.stdout);
+      } catch (error) {
+        console.error('Operation failed');
+      }
+      break;
+
+    case 'add':
+      if (args.length !== 1) {
+        console.error('Invalid input');
+        return;
+      }
+      const fileName = args[0];
+      const newFilePath = path.join(currentDir, fileName);
+      try {
+        const fd = await fsPromises.open(newFilePath, 'wx');
+        await fd.close();
+      } catch (error) {
+        console.error('Operation failed');
+      }
+      break;
+
     
 
     default:
