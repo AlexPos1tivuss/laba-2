@@ -34,6 +34,26 @@ async function handleCommand(command, args) {
       }
       break;
 
+    case 'cd':
+      if (args.length !== 1) {
+        console.error('Invalid input');
+        return;
+      }
+      const targetDir = path.resolve(currentDir, args[0]);
+      try {
+        const stats = await fsPromises.stat(targetDir);
+        if (stats.isDirectory()) {
+          currentDir = targetDir;
+        } else {
+          console.error('Operation failed');
+        }
+      } catch (error) {
+        console.error('Operation failed');
+      }
+      break;
+
+    
+
     default:
       console.error('Invalid input');
   }
